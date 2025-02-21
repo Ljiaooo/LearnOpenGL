@@ -12,6 +12,12 @@
 	x;\
 	ASSERT(GLCheckError(#x, __FILE__, __LINE__));
 
+static void GLAPIENTRY GLDebugCallback(GLenum source, GLenum type, GLuint id, GLenum severity,
+	GLsizei length, const GLchar * message, const void* userParam)
+{
+	std::cout << "[OpenGL Error](" << id << "): " << message << std::endl;
+}
+
 static void GLClearError()
 {
 	while (glGetError() != GL_NO_ERROR);
@@ -110,6 +116,9 @@ int main(void)
 	if (!glfwInit())
 		return -1;
 
+	//或使用glEnable(GL_DEBUG_OUTPUT)来启用调试信息
+	//glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
+
 	/* Create a windowed mode window and its OpenGL context */
 	window = glfwCreateWindow(640, 480, "Hello World", NULL, NULL);
 	if (!window)
@@ -123,6 +132,10 @@ int main(void)
 
 	if (glewInit() != GLEW_OK)
 		std::cout << "Fail to init glew!" << std::endl;
+
+	// 启用调试输出
+    glEnable(GL_DEBUG_OUTPUT);
+    glDebugMessageCallback(GLDebugCallback, nullptr);
 
 	float positions[8] = {
 		-0.5f, -0.5f,
@@ -159,7 +172,7 @@ int main(void)
 		/* Render here */
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		GLCall(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0));
+		GLCall(glDrawElements(GL_TRIANGLES, 6, GL_INT, 0));
 
 		/* Swap front and back buffers */
 		glfwSwapBuffers(window);
